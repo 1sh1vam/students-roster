@@ -6,7 +6,7 @@ import Student from "../models/student";
 const router = express.Router();
 
 router.post(
-  "/students",
+  "/api/students",
   [
     body("name").notEmpty().withMessage("Name is required"),
     body("email").isEmail().withMessage("Invalid email address"),
@@ -22,7 +22,7 @@ router.post(
   }
 );
 
-router.get('/students', async (req: Request, res: Response) => {
+router.get('/api/students', async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string, 10) || 1;
     const pageSize = parseInt(req.query.pageSize as string, 10) || 5;
 

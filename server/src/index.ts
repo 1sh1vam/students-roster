@@ -6,7 +6,7 @@ import sequelize from './sequelize';
 const start = async () => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync({ force: true });
+        // await sequelize.sync({ force: true });
     } catch(err) {
         console.log('failed to connect to db', err);
     }
