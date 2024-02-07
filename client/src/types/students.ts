@@ -4,3 +4,10 @@ export type Student = {
   email: string;
   subjects: string;
 };
+
+export type StudentResponseT = {
+  page: number;
+  total: number;
+  pageSize: number;
+  data: Student[];
+}

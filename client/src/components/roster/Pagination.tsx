@@ -1,25 +1,24 @@
 
 type PaginationPropsT = {
-    itemsPerPage: number;
-    totalItems: number;
-    currentPage: number;
-    paginate: (pageNumber: number) => void;
+  totalPages: number;
+  currentPage: number;
+  paginate: (pageNumber: number) => void;
 }
 
-const Pagination = ({ itemsPerPage, totalItems, currentPage, paginate } : PaginationPropsT) => {
+const Pagination = ({ totalPages, currentPage, paginate } : PaginationPropsT) => {
   const pageNumbers: number[] = [];
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   for (let i = 1; i <= totalPages; i++) {
     pageNumbers.push(i);
   }
 
+  console.log({ pageNumbers })
   const maxPagesToShow = 5;
 
   const renderPageNumbers = () => {
     if (totalPages <= maxPagesToShow) {
       return pageNumbers.map((number) => (
-        <li key={number} className={number === currentPage ? 'bg-primary-orange text-white' : ''}>
+        <li key={number} className={number === currentPage ? 'text-primary-orange' : ''}>
           <button onClick={() => paginate(number)}>{number}</button>
         </li>
       ));

@@ -7,9 +7,10 @@ import CustomSelect from "@/components/inputs/CutomSelect";
 import Button from "@/components/buttons/Button";
 import { Student } from "@/types/students";
 import { SUBJECTS } from "@/constants/subjects";
+import { useStudents } from "@/hooks/useStudents";
+import Spinner from "@/components/loaders/Spinner";
 
 type AddStudentFormProps = {
-  addStudent: (student: Omit<Student, 'id'>) => void;
   closeForm: () => void;
 };
 
@@ -19,15 +20,17 @@ const studentObj = {
   subjects: SUBJECTS[0].value,
 }
 
-const AddStudentForm = ({ closeForm, addStudent }: AddStudentFormProps) => {
+const AddStudentForm = ({ closeForm }: AddStudentFormProps) => {
   const [student, setStudent] = useState<Omit<Student, 'id'>>(studentObj);
+
+  const { addStudent, addStudentState } = useStudents({});
 
   const handleChange = (fieldName: keyof Student, value: string) => {
     setStudent((prev) => ({ ...prev, [fieldName]: value }));
   };
 
-  const handleSave = () => {
-    addStudent(student);
+  const handleSave = async () => {
+    await addStudent(student);
     closeForm()
   }
 
@@ -71,7 +74,11 @@ const AddStudentForm = ({ closeForm, addStudent }: AddStudentFormProps) => {
             />
           </Label>
         </div>
-        <Button onClick={handleSave} disabled={!allFieldsFilled} className="self-end">Add Student</Button>
+        {addStudentState.status === 'failed' ? <p className="text-sm text-primary-red">{addStudentState.msg!}</p> : null}
+        <Button onClick={handleSave} disabled={!allFieldsFilled} className="self-end flex items-center gap-1">
+          {addStudentState.status === 'loading' ? <Spinner /> : null}
+          Add Student
+        </Button>
       </div>
     </Modal>
   );

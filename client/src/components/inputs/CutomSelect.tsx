@@ -45,6 +45,7 @@ const CustomSelect = ({
   }, []);
 
   const handleOptionClick = (value: string | number) => {
+    if (value === selectedOption) return setIsOpen(false);
     setSelectedOption(value);
     setIsOpen(false);
     onChange(value);

@@ -18,5 +18,14 @@ export default defineConfig({
       "@/store/*": path.resolve(__dirname, "./src/store/*"),
       "@/utils/*": path.resolve(__dirname, "./src/utils/*"),
     },
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   }
 })
