@@ -23,7 +23,6 @@ export const useStudents = ({ subjectFilter }: UseStudentsProps) => {
 
 
   const fetchStudents = async (pageNo = 0, size = pageSize, subject = subjectFilter) => {
-    console.log({ pageNo })
     try {
       setFetchStudentsState({ status: 'loading' });
       let query = `?page=${pageNo+1}&pageSize=${size}`;
@@ -46,7 +45,8 @@ export const useStudents = ({ subjectFilter }: UseStudentsProps) => {
       await axiosClient.post<StudentResponseT>('/api/students', payload)
       setAddStudentState({ status: 'success' });
     } catch(err) {
-      setAddStudentState({ status: 'failed', msg: (err as Error).message })
+      setAddStudentState({ status: 'failed', msg: (err as Error).message });
+      throw err;
     }
   }
 

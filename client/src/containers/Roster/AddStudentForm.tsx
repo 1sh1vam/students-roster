@@ -30,8 +30,12 @@ const AddStudentForm = ({ closeForm }: AddStudentFormProps) => {
   };
 
   const handleSave = async () => {
-    await addStudent(student);
-    closeForm()
+    try {
+      await addStudent(student);
+      closeForm()
+    } catch(err) {
+      console.log('Failed to add Student')
+    }
   }
 
   const allFieldsFilled = Object.values(student).every((val) => !!val);

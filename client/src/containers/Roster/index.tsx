@@ -9,12 +9,14 @@ import { SUBJECTS } from "@/constants/subjects";
 import RosterEntrySelect from "@/components/roster/RosterEntrySelect";
 import Pagination from "@/components/roster/Pagination";
 import { useStudents } from "@/hooks/useStudents";
+import { SortConfigT, filterStudents, sortStudents } from "@/utils/students";
 
 const Roster = () => {
   const [showForm, setShowForm] = useState(false);  
   const [studentFilterText, setStudentFilterText] = useState('');
   const [subjectFilter, setSubjectFilter] = useState(SUBJECTS[0].value);
   const [tablePage, setTablePage] = useState(1);
+  const [sortConfig, setSortConfig] = useState<SortConfigT>({ key: null })
 
   const {
     students,
@@ -26,22 +28,24 @@ const Roster = () => {
     totalRecords,
   } = useStudents({ subjectFilter });
 
-  const totalPages = Math.ceil(totalRecords / pageSize);
+  const filteredStudents = useMemo(() => filterStudents(students, studentFilterText), [students, studentFilterText]);
+  const sortedStudents = useMemo(() => sortStudents(filteredStudents, sortConfig), [filteredStudents, sortConfig]);
+
+  const totalNoOfStudents = studentFilterText ? filteredStudents.length : totalRecords;
+  const totalPages = Math.ceil(totalNoOfStudents / pageSize);
 
   const currentPageStudents = useMemo(() => {
     const startIndex = (tablePage-1) * pageSize;
-    if (students.length < startIndex) {
-      return []
-    }
+    if (sortedStudents.length < startIndex) return [];
 
-    const endIndex = startIndex + Math.min(pageSize, students.length - startIndex)
+    const endIndex = startIndex + Math.min(pageSize, sortedStudents.length - startIndex)
 
-    return students.slice(startIndex, endIndex);
-  }, [pageSize, tablePage, students])
+    return sortedStudents.slice(startIndex, endIndex);
+  }, [pageSize, tablePage, sortedStudents])
 
   const handleSubjectChange = async (val: string) => {
+    setTablePage(1);
     setSubjectFilter(val)
-    // resetPagination();
     return fetchStudents(0, pageSize, val)
   }
 
@@ -59,19 +63,20 @@ const Roster = () => {
 
   const handlePagination = async (pageNo: number) => {
     setTablePage(pageNo);
-
-    const totalPages = (pageNo - 1) * pageSize;
-
+    
     // If page is not fetched then only fetch new pages
-    if (students.length <= totalPages) {
-      return fetchStudents(currentPage)
+    if (students.length <= (pageNo - 1) * pageSize) {
+      const size = (pageNo - currentPage);
+
+      for (let i = 0; i<size; i++) {
+        await fetchStudents(currentPage + i);
+      }
     }
   }
 
   const openStudentForm = () => setShowForm(true);
   const closeStudentForm = () => setShowForm(false);
 
-  console.log({ totalPages, currentPage, tablePage })
   return (
     <div className="w-full h-full max-w-5xl mx-auto flex flex-col gap-6 px-4 md:px-0">
       <div className="flex flex-col md:flex-row md:items-center justify-between">
@@ -92,7 +97,12 @@ const Roster = () => {
         </div>
       </div>
       <ContentBox className="overflow-auto py-[13px]">
-        <StudentsRoster loading={fetchStudentsState.status === 'loading'} students={currentPageStudents} />
+        <StudentsRoster
+          loading={fetchStudentsState.status === "loading"}
+          students={currentPageStudents}
+          sortConfig={sortConfig}
+          setSortConfig={setSortConfig}
+        />
       </ContentBox>
       {totalPages ? (
         <Pagination
@@ -101,11 +111,7 @@ const Roster = () => {
           paginate={handlePagination}
         />
       ) : null}
-      {showForm ? (
-        <AddStudentForm
-          closeForm={closeStudentForm}
-        />
-      ) : null}
+      {showForm ? <AddStudentForm closeForm={closeStudentForm} /> : null}
     </div>
   );
 };

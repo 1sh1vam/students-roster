@@ -1,3 +1,4 @@
+import React from "react";
 
 type PaginationPropsT = {
   totalPages: number;
@@ -12,7 +13,6 @@ const Pagination = ({ totalPages, currentPage, paginate } : PaginationPropsT) =>
     pageNumbers.push(i);
   }
 
-  console.log({ pageNumbers })
   const maxPagesToShow = 5;
 
   const renderPageNumbers = () => {
@@ -24,32 +24,14 @@ const Pagination = ({ totalPages, currentPage, paginate } : PaginationPropsT) =>
       ));
     }
 
-    const startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
+    const startPage = Math.floor((currentPage-1)/maxPagesToShow) * maxPagesToShow + 1;
+    const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages);
+    
     const pages = [];
     for (let i = startPage; i <= endPage; i++) {
       pages.push(
         <li key={i} className={i === currentPage ? 'text-primary-orange' : ''}>
           <button onClick={() => paginate(i)}>{i}</button>
-        </li>
-      );
-    }
-
-    if (startPage > 1) {
-      pages.unshift(
-        <li key={1}>
-          <button onClick={() => paginate(1)}>1</button>
-        </li>,
-        <li key="ellipsis-prev">...</li>
-      );
-    }
-
-    if (endPage < totalPages) {
-      pages.push(<li key="ellipsis-next">...</li>);
-      pages.push(
-        <li key={totalPages}>
-          <button onClick={() => paginate(totalPages)}>{totalPages}</button>
         </li>
       );
     }
@@ -76,4 +58,6 @@ const Pagination = ({ totalPages, currentPage, paginate } : PaginationPropsT) =>
   );
 };
 
-export default Pagination;
+const MemoizedPagination = React.memo(Pagination);
+
+export default MemoizedPagination;

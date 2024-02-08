@@ -3,13 +3,37 @@ import { STUDENT_TABLE_COLS } from '@/constants/students';
 import { Student } from '@/types/students';
 import EmptyRoster from './EmptyRoster';
 import Spinner from '@/components/loaders/Spinner';
+import { SortConfigT } from '@/utils/students';
+import React from 'react';
 
 type StudentRosterProps = {
   students: Student[];
   loading?: boolean;
+  sortConfig: SortConfigT;
+  setSortConfig: React.Dispatch<React.SetStateAction<SortConfigT>>
 }
 
-const StudentsRoster = ({ students, loading }: StudentRosterProps) => {
+const StudentsRoster = ({ students, loading, sortConfig, setSortConfig }: StudentRosterProps) => {
+
+  const handleSort = (key: string) => {
+    setSortConfig((prev) => {
+      const config = { ...prev };
+
+      if (config.key === key) {
+        if (config.direction === 'desc') {
+          config.key = null;
+          config.direction = undefined
+        }
+        config.direction = 'desc';
+      } else {
+        config.key = key as SortConfigT['key'];
+        config.direction = 'asc';
+      }
+
+      return config;
+    });
+  };
+
   if (!students.length && !loading) {
     return <EmptyRoster />
   }
@@ -23,7 +47,16 @@ const StudentsRoster = ({ students, loading }: StudentRosterProps) => {
               <th key={column.fieldName} className="font-medium pb-5 px-2">
                 <div className="flex items-center gap-2">
                   {column.label}
-                  {column.allowSort ? <Sort sortDirection="asc" /> : null}
+                  {column.allowSort ? (
+                    <Sort
+                      sortDirection={
+                        sortConfig.key === column.fieldName
+                          ? sortConfig.direction
+                          : undefined
+                      }
+                      onClick={() => handleSort(column.fieldName)}
+                    />
+                  ) : null}
                 </div>
               </th>
             ))}
@@ -40,7 +73,6 @@ const StudentsRoster = ({ students, loading }: StudentRosterProps) => {
               ))}
             </tr>
           ))}
-
         </tbody>
       </table>
       {loading ? (
@@ -52,4 +84,5 @@ const StudentsRoster = ({ students, loading }: StudentRosterProps) => {
   );
 }
 
-export default StudentsRoster
+const MemoizedStudentsRoster = React.memo(StudentsRoster);
+export default MemoizedStudentsRoster;
