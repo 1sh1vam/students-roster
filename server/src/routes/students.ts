@@ -9,7 +9,7 @@ router.post(
   "/api/students",
   [
     body("name").notEmpty().withMessage("Name is required"),
-    body("email").isEmail().withMessage("Invalid email address"),
+    body("email").toLowerCase().isEmail().withMessage("Invalid email address"),
     body("subjects").notEmpty().withMessage("Subjects is required"),
   ],
   validateRequest,
